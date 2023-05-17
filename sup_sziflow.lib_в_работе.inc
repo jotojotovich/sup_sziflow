@@ -844,7 +844,7 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   $block .= '<td colspan=3>'. check_plain($meta['org']) .'</td>';
   $block .= '</tr>';
   
-  /* 03 05 2023 */
+  /* 03 05 2023  ИНН организации */
   $block .= '<tr>';
   $block .= '<th style="text-align: left">ИНН</th>';
   //$block .= '<td colspan=3>'. check_plain($meta['host_addr']) .'</td>'; // было, оставил для примера
