@@ -722,14 +722,6 @@ function sup_sziflow_install_date_to_timestamp($install_date) {
  * @return
  *   TRUE/FALSE в зависимости от успеха преобразования.
  */
- 
- /* 03052023 lau */
- // ИНН из БД
-	function sup_sziflow_get_inn($id){
-	return db_query("SELECT field_org_inn_value FROM {field_revision_field_org_inn} WHERE entity_id = :value", array(':value' => $id))->fetchField();
-}
- 
- 
 function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {  
   $content = '';
   $meta = array();
@@ -754,10 +746,6 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   }
 
   // Подготовка метаданных.
-  
-  // Добавление нового поля - 03052023 lau
-  //$meta['inn'] = $akt_node->field_org_inn['und'][0]['value']; // here 2
-  
   $meta['date'] = date('d.m.Y', $akt_node->field_akt_szi_date[LANGUAGE_NONE][0]['value']);
   $meta['no'] = $akt_node->field_akt_szi_no[LANGUAGE_NONE][0]['value'];
   $meta['smid'] = $akt_node->field_smid[LANGUAGE_NONE][0]['value'];
@@ -851,26 +839,12 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   $block .= '<th style="width:25%; text-align: left">Организация</th>';
   $block .= '<td colspan=3>'. check_plain($meta['org']) .'</td>';
   $block .= '</tr>';
-  
-  /* 03052023 lau ИНН организации */
-  $block .= '<tr>';
-  $block .= '<th style="text-align: left">ИНН</th>';
-  //$block .= '<td colspan=3>'. check_plain($meta['host_addr']) .'</td>'; // было, оставил для примера
-  //$block .= '<td colspan=3>' . check_plain($meta['inn']) . '</td>'; // here 1
-  $block .= '<td colspan=3>' . check_plain(sup_sziflow_get_inn($akt_node->field_org['und'][0]['target_id'])) . '</td>'; // here 1
-  $block .= '</tr>';
-  /*  */
-  
-  
   if ($akt_node->field_akt_szi_host_type[LANGUAGE_NONE][0]['value'] != 'vm') {
     $block .= '<tr>';
     $block .= '<th style="text-align: left">Пользователь</th>';
     $block .= '<td colspan=3>'. check_plain($meta['host_user']) .'</td>';
     $block .= '</tr>';
   }
-  
-  
-  
   $block .= '<tr>';
   $block .= '<th style="text-align: left">Расположение</th>';
   $block .= '<td colspan=3>'. check_plain($meta['host_addr']) .'</td>';
@@ -880,7 +854,6 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   $block .= '<td colspan=1>'. check_plain($meta['host_type']) .'</td>';
   $block .= '<td colspan=2>'. check_plain($akt_node->field_akt_szi_host_os[LANGUAGE_NONE][0]['value']) .'</td>';
   $block .= '</tr>';
-  
   if ($akt_node->field_akt_szi_host_type[LANGUAGE_NONE][0]['value'] != 'vm') {
     $block .= '<tr>';
     $block .= '<th style="text-align: left">Инвентарный номер</th>';

@@ -92,7 +92,7 @@ function sup_sziflow_parse_sia_report($report, $options = array()) {
       );
       foreach ($lines as $line) {
         // Lic.
-        if (preg_match('/LicID=([a-z0-9]{7})_\d+/ius', $line, $m) || preg_match('/LicID=([a-z0-9]{6})_\d+/ius', $line, $m)) {
+        if (preg_match('/LicID=([a-z0-9]{6})_\d+/ius', $line, $m)) {
           $cur_lic = drupal_strtoupper($m[1]);
           if (!in_array($cur_lic, $demo_lic)) {
             $result['szi']['sns']['license'] = drupal_strtoupper($m[1]);  
@@ -272,7 +272,7 @@ function sup_sziflow_parse_sia_report($report, $options = array()) {
     }
   }
 
-  if (FALSE && !empty($result['szi']['dl8k'])) { // by_evil!
+  if (FALSE && !empty($result['szi']['dl8k'])) { // insert FALSE > by_evil!
     $dlock_info = file_get_contents('/var/spool/srr/dallaslock-map.txt');
     $dlock_info = explode("\n", $dlock_info);
     $curr_smid = drupal_strtolower($report->field_smid[LANGUAGE_NONE][0]['value']);
@@ -284,7 +284,7 @@ function sup_sziflow_parse_sia_report($report, $options = array()) {
       }
     }
   }
-  if (FALSE && !empty($result['szi']['dl8c'])) { // by_evil!
+  if (FALSE && !empty($result['szi']['dl8c'])) { // insert FALSE > by_evil!
     $dlock_info = file_get_contents('/var/spool/srr/dallaslock-map.txt');
     $dlock_info = explode("\n", $dlock_info);
     $curr_smid = drupal_strtolower($report->field_smid[LANGUAGE_NONE][0]['value']);
@@ -574,7 +574,7 @@ function sup_sziflow_szi_cert_distrib($szi) {
   // Secret Net Studio.
   elseif ($szi['type'] == 'sns') {
     // Если версия 8.2,4,5 и лицензия - одна из ЦИТовских, тогда указывается наш дистрибутив.
-    $cit_lics = array('11B839', '15248E', '1852C1', '197063', '1B3E01', '1EBBC8', '189F4DC');
+    $cit_lics = array('11B839', '15248E', '1852C1', '197063', '1B3E01','1EBBC8');
     if (preg_match('/^8\.2\./ius', $szi['version']) && in_array($szi['license'], $cit_lics)) {
       return 'SV2GB7UT, M378034';
     } 
@@ -582,10 +582,10 @@ function sup_sziflow_szi_cert_distrib($szi) {
       return '6D2FG8ZL, H284039';
     }
     elseif (preg_match('/^8\.5\./ius', $szi['version']) && in_array($szi['license'], $cit_lics)) {
-      return 'Официальный электронный дистрибутив';
+      return 'официальный электронный дистрибутив';
     }
     elseif (preg_match('/^8\.6\./ius', $szi['version']) && in_array($szi['license'], $cit_lics)) {
-      return 'Официальный электронный дистрибутив';
+      return 'официальный электронный дистрибутив';
     }
   }
 
@@ -687,9 +687,6 @@ function sup_sziflow_szi_cert_distrib($szi) {
   }
 
   return FALSE;
-
-  
-  /*end*/
 }
 
 
@@ -709,9 +706,6 @@ function sup_sziflow_install_date_to_timestamp($install_date) {
 }
 
 
-
-/* PDF */
-
 /**
  * Преобразование ноды типа akt_szi в PDF-файл.
  *
@@ -722,14 +716,6 @@ function sup_sziflow_install_date_to_timestamp($install_date) {
  * @return
  *   TRUE/FALSE в зависимости от успеха преобразования.
  */
- 
- /* 03052023 lau */
- // ИНН из БД
-	function sup_sziflow_get_inn($id){
-	return db_query("SELECT field_org_inn_value FROM {field_revision_field_org_inn} WHERE entity_id = :value", array(':value' => $id))->fetchField();
-}
- 
- 
 function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {  
   $content = '';
   $meta = array();
@@ -754,10 +740,6 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   }
 
   // Подготовка метаданных.
-  
-  // Добавление нового поля - 03052023 lau
-  //$meta['inn'] = $akt_node->field_org_inn['und'][0]['value']; // here 2
-  
   $meta['date'] = date('d.m.Y', $akt_node->field_akt_szi_date[LANGUAGE_NONE][0]['value']);
   $meta['no'] = $akt_node->field_akt_szi_no[LANGUAGE_NONE][0]['value'];
   $meta['smid'] = $akt_node->field_smid[LANGUAGE_NONE][0]['value'];
@@ -823,7 +805,8 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   
   $content .= '<div style="margin: 20px 0 10px; text-align: justify; text-indent: 35px">'; 
   $content .= format_string('Работник @installer-org @installer-fio настоящим актом подтверждает, что им проведены работы согласно Таблице 1 на компьютере, сведения о котором указаны в Таблице 2.', array(
-    '@installer-org' => $meta['installer_org'],
+    // '@installer-org' => $meta['installer_org'], //!
+    '@installer-org' => 'ГАУ РК "ЦИТ"', // by_evil ^_^
     '@installer-fio' => $meta['installer_fio'],
     '@installer-title' => $meta['installer_title'],
   ));
@@ -851,26 +834,12 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   $block .= '<th style="width:25%; text-align: left">Организация</th>';
   $block .= '<td colspan=3>'. check_plain($meta['org']) .'</td>';
   $block .= '</tr>';
-  
-  /* 03052023 lau ИНН организации */
-  $block .= '<tr>';
-  $block .= '<th style="text-align: left">ИНН</th>';
-  //$block .= '<td colspan=3>'. check_plain($meta['host_addr']) .'</td>'; // было, оставил для примера
-  //$block .= '<td colspan=3>' . check_plain($meta['inn']) . '</td>'; // here 1
-  $block .= '<td colspan=3>' . check_plain(sup_sziflow_get_inn($akt_node->field_org['und'][0]['target_id'])) . '</td>'; // here 1
-  $block .= '</tr>';
-  /*  */
-  
-  
   if ($akt_node->field_akt_szi_host_type[LANGUAGE_NONE][0]['value'] != 'vm') {
     $block .= '<tr>';
     $block .= '<th style="text-align: left">Пользователь</th>';
     $block .= '<td colspan=3>'. check_plain($meta['host_user']) .'</td>';
     $block .= '</tr>';
   }
-  
-  
-  
   $block .= '<tr>';
   $block .= '<th style="text-align: left">Расположение</th>';
   $block .= '<td colspan=3>'. check_plain($meta['host_addr']) .'</td>';
@@ -880,7 +849,6 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   $block .= '<td colspan=1>'. check_plain($meta['host_type']) .'</td>';
   $block .= '<td colspan=2>'. check_plain($akt_node->field_akt_szi_host_os[LANGUAGE_NONE][0]['value']) .'</td>';
   $block .= '</tr>';
-  
   if ($akt_node->field_akt_szi_host_type[LANGUAGE_NONE][0]['value'] != 'vm') {
     $block .= '<tr>';
     $block .= '<th style="text-align: left">Инвентарный номер</th>';
@@ -999,12 +967,15 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
 
   $signer_cert = entity_load_single('node', $akt_node->field_akt_szi_sig_cert[LANGUAGE_NONE][0]['target_id']);
   $content .= '<div style="width:70%; margin: 60px 0 20px; border: 2px solid black; padding:10px; font-size: 9pt; page-break-inside:avoid;">';
-  $content .= '<div style="margin-bottom: 7px">ПОДПИСАНО (электронная подпись без штампа времени)</div>';
+  // by_evil:
+  // $content .= '<div style="margin-bottom: 7px">ПОДПИСАНО (электронная подпись без штампа времени)</div>';
+  $content .= '<div style="margin-bottom: 7px">ПОДПИСАНО (простая электронная подпись)</div>'; // <--!
   $content .= '<b style="font-size: 10pt">'. $signer_cert->field_cert_subj_sn[LANGUAGE_NONE][0]['value'] .' '. $signer_cert->field_cert_subj_g[LANGUAGE_NONE][0]['value'] .'</b><br/>';
-  $content .= $signer_cert->field_cert_subj_cn[LANGUAGE_NONE][0]['value'] .'</b><br/>';
-  $content .= 'Издатель: '. $signer_cert->field_cert_iss_cn[LANGUAGE_NONE][0]['value'] .'<br/>';
-  $content .= 'Серийный номер: '. $signer_cert->field_cert_serial[LANGUAGE_NONE][0]['value'] .'<br/>';
-  $content .= 'Срок действия: '. date('d.m.Y H:i:s', $signer_cert->field_cert_notbefore[LANGUAGE_NONE][0]['value']) .'&mdash;'. date('d.m.Y H:i:s', $signer_cert->field_cert_notafter[LANGUAGE_NONE][0]['value']) .' (UTC)<br/>';
+  // by_evil:
+  // $content .= $signer_cert->field_cert_subj_cn[LANGUAGE_NONE][0]['value'] .'</b><br/>';
+  // $content .= 'Издатель: '. $signer_cert->field_cert_iss_cn[LANGUAGE_NONE][0]['value'] .'<br/>';
+  // $content .= 'Серийный номер: '. $signer_cert->field_cert_serial[LANGUAGE_NONE][0]['value'] .'<br/>';
+  // $content .= 'Срок действия: '. date('d.m.Y H:i:s', $signer_cert->field_cert_notbefore[LANGUAGE_NONE][0]['value']) .'&mdash;'. date('d.m.Y H:i:s', $signer_cert->field_cert_notafter[LANGUAGE_NONE][0]['value']) .' (UTC)<br/>';
   $content .= '</div>';  
 
   $assurer_cert = entity_load_single('node', $akt_node->field_akt_szi_assure_cert[LANGUAGE_NONE][0]['target_id']);
