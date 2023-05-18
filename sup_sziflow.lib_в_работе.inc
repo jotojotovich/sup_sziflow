@@ -27,6 +27,9 @@
  **     - host_inv - инвентарный номер;
  **     - comment - комментарий;
  */
+ 
+ /* 17052023 */
+ 
 function sup_sziflow_parse_sia_report($report, $options = array()) {
   $options += array(
     'kes__never_hide' => FALSE,
@@ -887,12 +890,21 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
     $block .= '<td colspan=3>'. check_plain($meta['host_inv']) .'</td>';
     $block .= '</tr>'; 
   }
+  /* 03052023 lau */
+  $block .= '<tr>';
+  $block .= '<th style="text-align: left">Компьютер подключен к домену rk.local?</th>';
+  $block .= '<td>' . $akt_node->field_hostref_inrklocal['und'][0]['value'] . '</td>';
+  $block .= '</tr>';
+  /* end */
+  
   $block .= '<tr>';
   $block .= '<th style="text-align: left">SMID, имя, отчет SIA</th>';
   $block .= '<td>'. check_plain($meta['smid']) .'</td>';
   $block .= '<td>'. check_plain($akt_node->field_akt_szi_host_name[LANGUAGE_NONE][0]['value']) .'</td>';
   $block .= '<td>'. $akt_node->field_akt_szi_siarep[LANGUAGE_NONE][0]['target_id'] .'</td>';
-  $block .= '</tr>'; 
+  $block .= '</tr>';
+  
+  
   if ($akt_node->field_akt_szi_host_type[LANGUAGE_NONE][0]['value'] != 'vm') {
     $block .= '<tr>';
     $block .= '<th style="text-align: left">Опечатано</th>';
