@@ -731,7 +731,19 @@ function sup_sziflow_install_date_to_timestamp($install_date) {
 	function sup_sziflow_get_inn($id){
 	return db_query("SELECT field_org_inn_value FROM {field_revision_field_org_inn} WHERE entity_id = :value", array(':value' => $id))->fetchField();
 }
- 
+
+
+// Принадлежость к inrklocal
+	function isrklocal($host){
+		if ($host == '1')
+		{
+			return "Да";
+		}
+		else
+		{
+			return "Нет";
+		}
+	}
  
 function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {  
   $content = '';
@@ -891,10 +903,27 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
     $block .= '</tr>'; 
   }
   /* 03052023 lau */
+  
+  /*
+  function isrklocal(){
+		if ($node->field_hostref_inrklocal['und'][0]['value'] == '1')
+		{
+			return "Да";
+		}
+		else
+		{
+			return "Нет";
+		}
+	}
+  */
   $block .= '<tr>';
   $block .= '<th style="text-align: left">Компьютер подключен к домену rk.local?</th>';
-  $block .= '<td>' . $akt_node->field_hostref_inrklocal['und'][0]['value'] . '</td>';
-  $block .= '</tr>';
+  $block .= '<td colspan=3>' . isrklocal($node->field_hostref_inrklocal['und'][0]['value']);
+  $block .= '</td></tr>';
+  */
+  
+  
+  
   /* end */
   
   $block .= '<tr>';
