@@ -904,25 +904,10 @@ function sup_sziflow_convert_akt_szi_to_pdf($akt_node, $output_uri) {
   }
   /* 03052023 lau */
   
-  /*
-  function isrklocal(){
-		if ($node->field_hostref_inrklocal['und'][0]['value'] == '1')
-		{
-			return "Да";
-		}
-		else
-		{
-			return "Нет";
-		}
-	}
-  */
   $block .= '<tr>';
   $block .= '<th style="text-align: left">Компьютер подключен к домену rk.local?</th>';
-  $block .= '<td colspan=3>' . isrklocal($node->field_hostref_inrklocal['und'][0]['value']);
+  $block .= '<td colspan=3>' . isrklocal($akt_node->field_hostref_inrklocal['und'][0]['value']);
   $block .= '</td></tr>';
-  */
-  
-  
   
   /* end */
   
